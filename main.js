@@ -30,7 +30,7 @@ app.on('ready', () => {
 
 	win.loadURL(storedURL);
 
-	// Handle all navigation events
+	// Handle all navigation events and save the URL to the store
 	win.webContents.on('did-navigate-in-page', (event, url) => {
 		store.set('urlState', url);
 	});
