@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, webContents } = require('electron');
 const Store = require('electron-store');
 
 // Create a new instance of the electron-store module
@@ -15,6 +15,8 @@ app.on('ready', () => {
 		};
 	}
 
+	let storedURL = store.get('urlState');
+
 	const win = new BrowserWindow({
 		autoHideMenuBar: true,
 		...mainWindowBounds,
@@ -22,14 +24,27 @@ app.on('ready', () => {
 		minHeight: 600,
 	});
 
-	// Load the login page
-	win.loadURL('https://www.figma.com/files');
+	if (!storedURL) {
+		storedURL = 'https://www.figma.com/files';
+	}
+
+	win.loadURL(storedURL);
 
 	// Handle all navigation events
-	win.webContents.on('did-navigate', (event, url) => {
-		if (url === 'https://www.figma.com/') {
+	win.webContents.on('did-navigate-in-page', (event, url) => {
+		store.set('urlState', url);
+	});
+
+	win.webContents.on('will-navigate', (event, url) => {
+		if (
+			url === 'https://www.figma.com/' ||
+			url === 'https://www.figma.com/?fuid='
+		) {
 			win.loadURL('https://www.figma.com/login');
+			store.reset('urlState');
+			return;
 		}
+		store.set('urlState', url);
 	});
 
 	// Handle external links
