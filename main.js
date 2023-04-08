@@ -1,4 +1,4 @@
-const { app, BrowserWindow, shell } = require('electron');
+const { app, BrowserWindow, shell, dialog } = require('electron');
 const Store = require('electron-store');
 
 // Create a new instance of the electron-store module
@@ -50,6 +50,27 @@ app.on('ready', () => {
 			return;
 		}
 		store.set('urlState', url);
+	});
+
+	// Handle file dialogs
+	win.webContents.on('select-file', (event, filePath) => {
+		dialog
+			.showOpenDialog(win, {
+				defaultPath: filePath,
+				properties: ['openFile'],
+				modal: true,
+			})
+			.then((result) => {
+				if (result.canceled) {
+					event.preventDefault();
+					return;
+				}
+				event.preventDefault();
+				win.webContents.send('file-selected', result.filePaths[0]);
+			})
+			.catch((err) => {
+				console.error(err);
+			});
 	});
 
 	// Handle external links
