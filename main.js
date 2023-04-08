@@ -17,7 +17,7 @@ app.on('ready', () => {
 	});
 
 	// Load the login page
-	win.loadURL('https://www.figma.com/login');
+	win.loadURL('https://www.figma.com/files');
 
 	// Handle external links
 	win.webContents.setWindowOpenHandler(({ url }) => {
